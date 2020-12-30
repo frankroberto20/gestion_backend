@@ -12,6 +12,9 @@ from django.db.models.fields.related import ForeignKey
 class TipoUsuario(models.Model):
     NombreTipoUsuario = models.CharField(max_length=50)
 
+    def __str__(self):
+        return f"{self.NombreTipoUsuario}"
+
     #Returns in JSON format
     def serialize(self):
         return {
@@ -25,14 +28,47 @@ class Usuario(AbstractUser):
     Cedula = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')])
     FechaRegistro = models.DateTimeField(default=timezone.now())
 
+    def __str__(self):
+        return f"{self.id}: {self.first_name}"
+
+    def serialize(self):
+        return {
+            'tipo_usuario': self.tipoUsuario.id,
+            'nombre': self.first_name,
+            'apellidos': self.last_name,
+            'sexo': self.Sexo,
+            'fecha_nacimiento': self.FechaNacimiento.strftime(f'%Y/%m/%d'),
+            'cedula': self.Cedula
+        }
+
 class Enfermedad(models.Model):
     NombreEnfermedad = models.CharField(max_length=100)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'nombre_enfermedad': self.NombreEnfermedad
+        }
 
 class Paciente(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete= models.CASCADE)
     NombreTutor = models.CharField(max_length=100)
     CedulaTutor = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')])
     Enfermedades = models.ManyToManyField(Enfermedad)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'tipo_usuario': self.usuario.tipoUsuario.id,
+            'nombre': self.usuario.first_name,
+            'apellidos': self.usuario.last_name,
+            'sexo': self.usuario.Sexo,
+            'fecha_nacimiento': self.usuario.FechaNacimiento,
+            'cedula': self.usuario.Cedula,
+            'nombre_tutor': self.NombreTutor,
+            'cedula_tutor': self.CedulaTutor,
+            'enfermedades': self.Enfermedades
+        }
 
 class Especialidad(models.Model):
     NombreEspecialidad = models.CharField(max_length=100)

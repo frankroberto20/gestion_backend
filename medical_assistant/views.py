@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 
@@ -39,6 +40,7 @@ def logout(request):
     logout(request)
     return JsonResponse({"message": "Logout successful."}, status=200)
 
+@csrf_exempt
 def patients(request):
     if request.method == 'GET':
         return JsonResponse([paciente.serialize() for paciente in Paciente.objects.all()], safe=False)
@@ -46,28 +48,36 @@ def patients(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
 
-        try:
-            usuario = Usuario(
-                Nombre = data['nombre'],
-                Apellido = data['apellido'],
-                FechaNacimiento = data['fecha_nacimiento'],
-                Cedula = data['cedula'],
-            )
+        #try:
+        usuario = Usuario(
+            first_name = data['nombre'],
+            last_name = data['apellidos'],
+            FechaNacimiento = data['fecha_nacimiento'],
+            Cedula = data['cedula'],
+        )
 
-            paciente = Paciente(
-                usuario = usuario,
-                NombreTutor = data['nombre_tutor'],
-                CedulaTutor = data['cedula_tutor']
-            )
+        usuario.save()
 
+        paciente = Paciente(
+            usuario = usuario,
+            NombreTutor = data['nombre_tutor'],
+            CedulaTutor = data['cedula_tutor']
+        )
+
+        if 'enfermedad' in data:
             for enfermedad in data['enfermedad']:
                 paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
 
-            paciente.save()
-            JsonResponse({'message': 'Patient added succesfully.'}, status=200)
+        paciente.save()
+        return JsonResponse({'message': 'Patient added succesfully.'}, status=200)
 
-        except:
-            JsonResponse({'error': 'Error adding patient.'}, status=400)
+        #except e:
+            #return JsonResponse({'error': f'Error adding patient. {e}'}, status=400)
+
+def patient_by_id(request, id):
+    if request.method == 'GET':
+        paciente = Paciente.objects.get(pk=id)
+        
             
 
 def diseases(request):
