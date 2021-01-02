@@ -83,7 +83,7 @@ def patient_by_id(request, id):
 @csrf_exempt
 def diseases(request):
     if request.method == 'GET':
-        return JsonResponse([enfermedad.serialize() for enfermedad in Enfermedad.objects.all()])
+        return JsonResponse([enfermedad.serialize() for enfermedad in Enfermedad.objects.all()], safe=False)
     
     elif request.method == 'POST':
         data = json.loads(request.body)
@@ -101,7 +101,7 @@ def diseases(request):
 @csrf_exempt
 def doctors(request):
     if request.method == 'GET':
-        return JsonResponse([doctor.serialize() for doctor in Doctor.objects.all()])
+        return JsonResponse([doctor.serialize() for doctor in Doctor.objects.all()], safe=False)
     
     elif request.method == 'POST':
         data = json.loads(request.body)
