@@ -59,14 +59,17 @@ def patients(request):
             username = "paciente" + data['cedula']
         )
 
-
-
         usuario.save()
 
-        paciente = Paciente(
+        if 'nombre_tutor' and 'cedula_tutor' in data:
+            paciente = Paciente(
             usuario = usuario,
             NombreTutor = data['nombre_tutor'],
             CedulaTutor = data['cedula_tutor']
+            )
+        else:
+            paciente = Paciente(
+            usuario = usuario
         )
 
         if 'enfermedad' in data:
