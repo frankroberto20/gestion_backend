@@ -14,7 +14,8 @@ from .models import *
 def index(request):
     return JsonResponse({'message': 'Hello'})
 
-def login(request):
+@csrf_exempt
+def login_view(request):
     if request.method == "POST":
 
         data = json.loads(request.body)
@@ -35,8 +36,8 @@ def login(request):
         else:
             JsonResponse({"message": "Invalid username and/or password."}, status=400)
 
-
-def logout(request):
+@csrf_exempt
+def logout_view(request):
     logout(request)
     return JsonResponse({"message": "Logout successful."}, status=200)
 
@@ -54,6 +55,8 @@ def patients(request):
             last_name = data['apellidos'],
             FechaNacimiento = data['fecha_nacimiento'],
             Cedula = data['cedula'],
+            Sexo = data['sexo'],
+            username = "paciente" + data['cedula'],
         )
 
         usuario.save()

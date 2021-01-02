@@ -67,7 +67,7 @@ class Paciente(models.Model):
             'cedula': self.usuario.Cedula,
             'nombre_tutor': self.NombreTutor,
             'cedula_tutor': self.CedulaTutor,
-            'enfermedades': self.Enfermedades
+            'enfermedades': [enfermedad.serialize() for enfermedad in self.Enfermedades.all()]
         }
 
 class Especialidad(models.Model):
