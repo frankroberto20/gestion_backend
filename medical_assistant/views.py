@@ -74,12 +74,13 @@ def patients(request):
         #except e:
             #return JsonResponse({'error': f'Error adding patient. {e}'}, status=400)
 
+@csrf_exempt
 def patient_by_id(request, id):
     if request.method == 'GET':
         paciente = Paciente.objects.get(pk=id)
         
             
-
+@csrf_exempt
 def diseases(request):
     if request.method == 'GET':
         return JsonResponse([enfermedad.serialize() for enfermedad in Enfermedad.objects.all()])
@@ -97,6 +98,7 @@ def diseases(request):
         except:
             JsonResponse({'error': 'Error in adding disease.'}, status=400)
 
+@csrf_exempt
 def doctors(request):
     if request.method == 'GET':
         return JsonResponse([doctor.serialize() for doctor in Doctor.objects.all()])
@@ -124,6 +126,7 @@ def doctors(request):
         except:
             return JsonResponse({'error': 'Error in creating doctor'}, status=400)
 
+@csrf_exempt
 def specialties(request):
     if request.method == 'GET':
         return JsonResponse([especialidad.serialize() for especialidad in Especialidad.objects.all()])
@@ -139,6 +142,7 @@ def specialties(request):
         except:
             return JsonResponse({'error': 'Error in creating especialty'}, status=400)
 
+@csrf_exempt
 def subspecialties(request):
     if request.method == 'GET':
         return JsonResponse([subespecialidad.serialize() for subespecialidad in SubEspecialidad.objects.all()])
@@ -155,6 +159,7 @@ def subspecialties(request):
         except:
             return JsonResponse({'error': 'Error in creating subespecialty'}, status=400)
 
+@csrf_exempt
 def usertypes(request):
     if request.method == 'GET':
         return JsonResponse([tipousuario.serialize() for tipousuario in TipoUsuario.objects.all()])
@@ -170,5 +175,6 @@ def usertypes(request):
         except:
             return JsonResponse({'error': 'Error in creating user type'}, status=400)
 
+@csrf_exempt
 def checkup(request):
     pass
