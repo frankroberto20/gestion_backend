@@ -56,8 +56,10 @@ def patients(request):
             FechaNacimiento = data['fecha_nacimiento'],
             Cedula = data['cedula'],
             Sexo = data['sexo'],
-            username = "paciente" + data['cedula'],
+            username = "paciente" + data['cedula']
         )
+
+
 
         usuario.save()
 

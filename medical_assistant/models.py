@@ -52,8 +52,8 @@ class Enfermedad(models.Model):
 
 class Paciente(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete= models.CASCADE)
-    NombreTutor = models.CharField(max_length=100)
-    CedulaTutor = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')])
+    NombreTutor = models.CharField(max_length=100, blank= True)
+    CedulaTutor = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')], blank=True)
     Enfermedades = models.ManyToManyField(Enfermedad)
 
     def serialize(self):
