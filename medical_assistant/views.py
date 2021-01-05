@@ -85,8 +85,11 @@ def patients(request):
 @csrf_exempt
 def patient_by_id(request, id):
     if request.method == 'GET':
-        paciente = Paciente.objects.get(pk=id)
-        
+        try:
+            paciente = Paciente.objects.get(pk=id)
+            return JsonResponse(paciente.serialize(), safe=False, status=200)
+        except:
+            return JsonResponse({'error': 'Patient not found'}, status=400)
             
 @csrf_exempt
 def diseases(request):
@@ -184,5 +187,5 @@ def usertypes(request):
             return JsonResponse({'error': 'Error in creating user type'}, status=400)
 
 @csrf_exempt
-def checkup(request):
+def checkups(request, patient_id):
     pass
