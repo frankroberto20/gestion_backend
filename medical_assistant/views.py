@@ -175,7 +175,7 @@ def subspecialties(request):
 @csrf_exempt
 def usertypes(request):
     if request.method == 'GET':
-        return JsonResponse([tipousuario.serialize() for tipousuario in TipoUsuario.objects.all()])
+        return JsonResponse([tipousuario.serialize() for tipousuario in TipoUsuario.objects.all()], safe=False)
     elif request.method == 'POST':
         data = json.loads(request.body)
 
