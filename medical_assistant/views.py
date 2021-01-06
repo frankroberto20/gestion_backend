@@ -5,12 +5,14 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 
 # Create your views here.
 
+@csrf_exempt
 def index(request):
     return JsonResponse({'message': 'Hello'})
 
@@ -184,8 +186,60 @@ def usertypes(request):
             especialidad.save()
             return JsonResponse({'message': 'User type created succesfully.'}, status=200)
         except:
-            return JsonResponse({'error': 'Error in creating user type'}, status=400)
+            return JsonResponse({'error': 'Error in creating user type'}, status=404)
 
 @csrf_exempt
-def checkups(request, patient_id):
-    pass
+@login_required
+def checkups(request):
+    user = request.user
+    if request.method == 'GET':
+        if user.tipoUsuario.id == 3 or user.tipoUsuario.id == 4:
+            return JsonResponse([consulta.serialize() for consulta in user.consultas], safe=False, status=200)
+        else:
+            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()])
+    if request.method == 'POST':
+        if user.tipoUsuario.id == 4:
+            data = json.loads(request.body)
+        
+            paciente = Paciente.objects.get(id=data['paciente'])
+            doctor = user
+
+            consulta = Consulta(
+                paciente = paciente,
+                doctor = doctor,
+                Titulo = data['titulo'],
+                Descripcion = data['descripcion'],
+                Fecha = data['fecha']
+            )
+
+            consulta.save()
+            return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200)
+        else:
+            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()])
+
+@csrf_exempt
+@login_required
+def checkups_patient(request, patient_id):
+    user = request.user
+    if request.method == 'GET' and user.tipoUsuario.id == 1:
+        try:
+            paciente = Paciente.objects.get(id=patient_id)
+            #if paciente.consultas.count() == 0:
+            #    return JsonResponse({'message': 'No checkups found'}, status=200)
+            return JsonResponse([consulta.serialize() for consulta in paciente.consultas], safe=False, status=200)
+        except:
+            return JsonResponse({'error': 'Patient not found'}, status=404)
+
+@csrf_exempt
+@login_required
+def checkups_doctor(request, doctor_id):
+    user = request.user
+    if request.method == 'GET' and user.tipoUsuario.id == 1:
+        try:
+            doctor = Doctor.objects.get(id=doctor_id)
+            #if paciente.consultas.count() == 0:
+            #    return JsonResponse({'message': 'No checkups found'}, status=200)
+            return JsonResponse([consulta.serialize() for consulta in doctor.consultas], safe=False, status=200)
+        except:
+            return JsonResponse({'error': 'Doctor not found'}, status=404)
+

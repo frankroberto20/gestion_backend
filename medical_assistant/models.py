@@ -13,7 +13,7 @@ class TipoUsuario(models.Model):
     NombreTipoUsuario = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.NombreTipoUsuario}"
+        return f"{self.id}: {self.NombreTipoUsuario}"
 
     #Returns in JSON format
     def serialize(self):
