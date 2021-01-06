@@ -180,10 +180,10 @@ def usertypes(request):
         data = json.loads(request.body)
 
         try:
-            especialidad = Especialidad(
+            tipo_usuario = TipoUsuario(
                 NombreTipoUsuario = data['nombre_tipousuario'],
             )
-            especialidad.save()
+            tipo_usuario.save()
             return JsonResponse({'message': 'User type created succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Error in creating user type'}, status=404)
