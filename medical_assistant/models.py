@@ -58,7 +58,7 @@ class Paciente(models.Model):
 
     def serialize(self):
         return {
-            'patient_id': self.id,
+            'id': self.id,
             'tipo_usuario': self.usuario.tipoUsuario.id,
             'nombre': self.usuario.first_name,
             'apellidos': self.usuario.last_name,
@@ -73,14 +73,40 @@ class Paciente(models.Model):
 class Especialidad(models.Model):
     NombreEspecialidad = models.CharField(max_length=100)
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'nombre_especialidad': self.NombreEspecialidad
+        }
+
 class SubEspecialidad(models.Model):
     especialidad = models.ForeignKey(Especialidad, on_delete= models.CASCADE, related_name='subespecialidades')
     NombreSubEspecialidad = models.CharField(max_length=100)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'especialidad': self.especialidad.id,
+            'nombre_sub_especialidad': self.NombreSubEspecialidad
+        }
 
 class Doctor(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)
     subespecialidad = models.ForeignKey(SubEspecialidad, on_delete = models.CASCADE)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'tipo_usuario': self.usuario.tipoUsuario.id,
+            'nombre': self.usuario.first_name,
+            'apellidos': self.usuario.last_name,
+            'sexo': self.usuario.Sexo,
+            'fecha_nacimiento': self.usuario.FechaNacimiento,
+            'cedula': self.usuario.Cedula,
+            'especialidad': self.especialidad.id,
+            'sub_especialidad': self.subespecialidad.id
+        }
 
 class Consulta(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='consultas')
@@ -88,5 +114,20 @@ class Consulta(models.Model):
     Titulo = models.CharField(max_length = 100)
     Descripcion = models.TextField()
     Fecha = models.DateTimeField()
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'nombre': self.paciente.usuario.first_name,
+            'apellidos': self.paciente.usuario.last_name,
+            'sexo': self.paciente.usuario.Sexo,
+            'fecha_nacimiento': self.paciente.usuario.FechaNacimiento,
+            'cedula': self.paciente.usuario.Cedula,
+            'nombre': self.doctor.usuario.first_name,
+            'apellidos': self.doctor.usuario.last_name,
+            'sexo': self.doctor.usuario.Sexo,
+            'especialidad': self.doctor.especialidad.id,
+            'sub_especialidad': self.doctor.subespecialidad.id
+        }
 
 

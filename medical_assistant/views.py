@@ -113,26 +113,22 @@ def patient_by_id(request, id):
 
         try:
             paciente = Paciente.objects.get(id=id)
+            
+            paciente.usuario.first_name = data['nombre']
+            paciente.usuario.last_name = data['apellidos']
+            paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
+            paciente.usuario.Cedula = data['cedula']
+            paciente.usuario.Sexo = data['sexo']
+            paciente.usuario.username = "paciente" + data['cedula']
 
-            usuario.first_name = data['nombre']
-            usuario.last_name = data['apellidos']
-            usuario.FechaNacimiento = data['fecha_nacimiento']
-            usuario.Cedula = data['cedula']
-            usuario.Sexo = data['sexo']
-            usuario.username = "paciente" + data['cedula']
-
-            usuario.save()
+            paciente.usuario.save()
 
             if 'nombre_tutor' and 'cedula_tutor' in data:
-                paciente.usuario = usuario
                 paciente.NombreTutor = data['nombre_tutor']
                 paciente.CedulaTutor = data['cedula_tutor']
-            else:
-                paciente.usuario = usuario
 
             if 'enfermedad' in data:
                 for enfermedad in data['enfermedad']:
-                    #paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
                     paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
 
             paciente.save()
@@ -158,6 +154,7 @@ def diseases(request):
         except:
             JsonResponse({'error': 'Error in adding disease.'}, status=400)
 
+
 @csrf_exempt
 def doctors(request):
     if request.method == 'GET':
@@ -166,30 +163,72 @@ def doctors(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
 
-        try:
-            usuario = Usuario(
-                Nombre = data['nombre'],
-                Apellido = data['apellido'],
-                FechaNacimiento = data['fecha_nacimiento'],
-                Cedula = data['cedula'],
-            )
-            usuario.save()
+        #try:
+        usuario = Usuario(
+            first_name = data['nombre'],
+            last_name = data['apellidos'],
+            FechaNacimiento = data['fecha_nacimiento'],
+            Cedula = data['cedula'],
+            Sexo = data['sexo'],
+            username = "doctor" + data['cedula'],
+            tipoUsuario = TipoUsuario.objects.get(id=4)
+        )
+        usuario.save()
 
-            doctor = Doctor(
-                usuario = usuario,
-                especialidad = Especialidad.objects.get(pk=data['especialidad']),
-                subespecialidad = SubEspecialidad.objects.get(pk=data['subespecialidad']),
-            )
-            doctor.save()
-            return JsonResponse({'message': 'Doctor created succesfully.'}, status=200)
+        doctor = Doctor(
+            usuario = usuario,
+            especialidad = Especialidad.objects.get(pk=data['especialidad']),
+            subespecialidad = SubEspecialidad.objects.get(pk=data['sub_especialidad']),
+        )
+        doctor.save()
+        return JsonResponse({'message': 'Doctor created succesfully.'}, status=200)
         
+        #except:
+        #    return JsonResponse({'error': 'Error in creating doctor'}, status=400)
+
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        
+        try:
+            doctor = Doctor.objects.get(id=data['id'])
+            doctor.usuario.delete()
+            return JsonResponse({'message' : 'Doctor deleted successfully.'})
+        except:        
+            return JsonResponse({'error': "Doctor not found"}, status = 400)
+
+
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+
+        try:
+            doctor = Doctor.objects.get(id=data['id'])
+
+            doctor.usuario.first_name = data['nombre']
+            doctor.usuario.last_name = data['apellidos']
+            doctor.usuario.FechaNacimiento = data['fecha_nacimiento']
+            doctor.usuario.Cedula = data['cedula']
+            doctor.usuario.Sexo = data['sexo']
+            doctor.usuario.username = "doctor" + data['cedula']
+
+            doctor.usuario.save()
+
+            if 'especialidad' in data:
+                doctor.especialidad = Especialidad.objects.get(pk=data['especialidad'])
+            elif 'especialidad' and 'sub_especialidad' in data:
+                doctor.especialidad = Especialidad.objects.get(pk=data['especialidad'])
+                doctor.subespecialidad = SubEspecialidad.objects.get(pk=data['sub_especialidad'])
+
+            doctor.save()
+            return JsonResponse({'message': 'Doctor modified succesfully.'}, status=200)
         except:
-            return JsonResponse({'error': 'Error in creating doctor'}, status=400)
+            return JsonResponse({'error': 'Doctor not found'}, status=400)
+
 
 @csrf_exempt
 def specialties(request):
     if request.method == 'GET':
-        return JsonResponse([especialidad.serialize() for especialidad in Especialidad.objects.all()])
+        return JsonResponse([especialidad.serialize() for especialidad in Especialidad.objects.all()], safe=False)
     elif request.method == 'POST':
         data = json.loads(request.body)
 
@@ -202,10 +241,36 @@ def specialties(request):
         except:
             return JsonResponse({'error': 'Error in creating especialty'}, status=400)
 
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        
+        try:
+            specialty = Especialidad.objects.get(id=data['id'])
+            specialty.delete()
+            return JsonResponse({'message' : 'Specialty deleted successfully.'})
+        except:        
+            return JsonResponse({'error': "Specialty not found"}, status = 400)
+
+
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+
+        try:
+            specialty = Especialidad.objects.get(id=data['id'])
+
+            specialty.NombreEspecialidad = data['nombre_especialidad']
+
+            specialty.save()
+
+            return JsonResponse({'message': 'Specialty modified succesfully.'}, status=200)
+        except:
+            return JsonResponse({'error': 'Specialty not found'}, status=400)    
+
 @csrf_exempt
 def subspecialties(request):
     if request.method == 'GET':
-        return JsonResponse([subespecialidad.serialize() for subespecialidad in SubEspecialidad.objects.all()])
+        return JsonResponse([subespecialidad.serialize() for subespecialidad in SubEspecialidad.objects.all()], safe=False)
     elif request.method == 'POST':
         data = json.loads(request.body)
 
@@ -218,6 +283,33 @@ def subspecialties(request):
             return JsonResponse({'message': 'Subespecialty created succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Error in creating subespecialty'}, status=400)
+
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        
+        try:
+            subspecialty = SubEspecialidad.objects.get(id=data['id'])
+            subspecialty.delete()
+            return JsonResponse({'message' : 'Subspecialty deleted successfully.'})
+        except:        
+            return JsonResponse({'error': "Subspecialty not found"}, status = 400)
+
+
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+
+        try:
+            subspecialty = SubEspecialidad.objects.get(id=data['id'])
+
+            subspecialty.NombreSubEspecialidad = data['nombre_subespecialidad']
+            subspecialty.especialidad = Especialidad.objects.get(id=data['especialidad'])
+
+            subspecialty.save()
+
+            return JsonResponse({'message': 'Subspecialty modified succesfully.'}, status=200)
+        except:
+            return JsonResponse({'error': 'Subspecialty not found'}, status=400)  
 
 @csrf_exempt
 def usertypes(request):
@@ -234,6 +326,32 @@ def usertypes(request):
             return JsonResponse({'message': 'User type created succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Error in creating user type'}, status=404)
+
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+        
+        try:
+            tipo_usuario = TipoUsuario.objects.get(id=data['id'])
+            tipo_usuario.delete()
+            return JsonResponse({'message' : 'UserType deleted successfully.'})
+        except:        
+            return JsonResponse({'error': "UserType not found"}, status = 400)
+
+
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+
+        try:
+            tipo_usuario = TipoUsuario.objects.get(id=data['id'])
+
+            tipo_usuario.NombreTipoUsuario = data['nombre_tipousuario']
+
+            tipo_usuario.save()
+
+            return JsonResponse({'message': 'UserType modified succesfully.'}, status=200)
+        except:
+            return JsonResponse({'error': 'UserType not found'}, status=400) 
 
 @csrf_exempt
 @login_required
