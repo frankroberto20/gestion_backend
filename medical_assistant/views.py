@@ -35,7 +35,7 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("index"))
+            return JsonResponse(user.serialize(), safe=False, status=200)
         else:
             JsonResponse({"message": "Invalid username and/or password."}, status=400)
 
@@ -45,11 +45,13 @@ def logout_view(request):
     return JsonResponse({"message": "Logout successful."}, status=200)
 
 @csrf_exempt
+@login_required
 def patients(request):
-    if request.method == 'GET':
+    user = request.user
+    if request.method == 'GET' and user.tipoUsuario.id == 1:
         return JsonResponse([paciente.serialize() for paciente in Paciente.objects.all()], safe=False)
 
-    elif request.method == 'POST':
+    elif request.method == 'POST' and user.tipoUsuario.id == 1:
         data = json.loads(request.body)
 
         try:
@@ -61,6 +63,7 @@ def patients(request):
                     Cedula = data['cedula'],
                     Sexo = data['sexo'],
                     username = "paciente" + data['cedula'],
+                    password = '1234',
                     tipoUsuario = TipoUsuario.objects.get(id=3)
                 )
 
@@ -90,6 +93,7 @@ def patients(request):
 
 
 @csrf_exempt
+@login_required
 def patient_by_id(request, id):
     if request.method == 'GET':
         try:
@@ -112,31 +116,33 @@ def patient_by_id(request, id):
         data = json.loads(request.body)
 
         try:
-            paciente = Paciente.objects.get(id=id)
-            
-            paciente.usuario.first_name = data['nombre']
-            paciente.usuario.last_name = data['apellidos']
-            paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
-            paciente.usuario.Cedula = data['cedula']
-            paciente.usuario.Sexo = data['sexo']
-            paciente.usuario.username = "paciente" + data['cedula']
+            with transaction.atomic():
+                paciente = Paciente.objects.get(id=id)
+                
+                paciente.usuario.first_name = data['nombre']
+                paciente.usuario.last_name = data['apellidos']
+                paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
+                paciente.usuario.Cedula = data['cedula']
+                paciente.usuario.Sexo = data['sexo']
+                paciente.usuario.username = "paciente" + data['cedula']
 
-            paciente.usuario.save()
+                paciente.usuario.save()
 
-            if 'nombre_tutor' and 'cedula_tutor' in data:
-                paciente.NombreTutor = data['nombre_tutor']
-                paciente.CedulaTutor = data['cedula_tutor']
+                if 'nombre_tutor' and 'cedula_tutor' in data:
+                    paciente.NombreTutor = data['nombre_tutor']
+                    paciente.CedulaTutor = data['cedula_tutor']
 
-            if 'enfermedad' in data:
-                for enfermedad in data['enfermedad']:
-                    paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
+                if 'enfermedad' in data:
+                    for enfermedad in data['enfermedad']:
+                        paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
 
-            paciente.save()
-            return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
+                paciente.save()
+                return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=400)
          
 @csrf_exempt
+@login_required
 def diseases(request):
     if request.method == 'GET':
         return JsonResponse([enfermedad.serialize() for enfermedad in Enfermedad.objects.all()], safe=False)
@@ -156,42 +162,59 @@ def diseases(request):
 
 
 @csrf_exempt
+@login_required
 def doctors(request):
-    if request.method == 'GET':
+    user = request.user
+    if request.method == 'GET' and user.tipoUsuario.id == 1:
         return JsonResponse([doctor.serialize() for doctor in Doctor.objects.all()], safe=False)
     
-    elif request.method == 'POST':
+    elif request.method == 'POST' and user.tipoUsuario.id == 1:
         data = json.loads(request.body)
 
-        #try:
-        usuario = Usuario(
-            first_name = data['nombre'],
-            last_name = data['apellidos'],
-            FechaNacimiento = data['fecha_nacimiento'],
-            Cedula = data['cedula'],
-            Sexo = data['sexo'],
-            username = "doctor" + data['cedula'],
-            tipoUsuario = TipoUsuario.objects.get(id=4)
-        )
-        usuario.save()
+        try:
+            with transaction.atomic():
+                usuario = Usuario(
+                    first_name = data['nombre'],
+                    last_name = data['apellidos'],
+                    FechaNacimiento = data['fecha_nacimiento'],
+                    Cedula = data['cedula'],
+                    Sexo = data['sexo'],
+                    username = "doctor" + data['cedula'],
+                    password = '1234',
+                    tipoUsuario = TipoUsuario.objects.get(id=4)
+                )
+                usuario.save()
 
-        doctor = Doctor(
-            usuario = usuario,
-            especialidad = Especialidad.objects.get(pk=data['especialidad']),
-            subespecialidad = SubEspecialidad.objects.get(pk=data['sub_especialidad']),
-        )
-        doctor.save()
-        return JsonResponse({'message': 'Doctor created succesfully.'}, status=200)
+                doctor = Doctor(
+                    usuario = usuario,
+                    especialidad = Especialidad.objects.get(pk=data['especialidad']),
+                    subespecialidad = SubEspecialidad.objects.get(pk=data['sub_especialidad']),
+                )
+                doctor.save()
+                return JsonResponse({'message': 'Doctor created succesfully.'}, status=200)
         
-        #except:
-        #    return JsonResponse({'error': 'Error in creating doctor'}, status=400)
+        except:
+            return JsonResponse({'error': 'Error in creating doctor'}, status=400)
 
+
+    
+
+@csrf_exempt
+@login_required
+def doctor_by_id(request, id):
+    user = request.user
+    if request.method == 'GET':
+        try:
+            doctor = Doctor.objects.get(id=id)
+            return JsonResponse(doctor.serialize(), safe=False, status=200)
+        except:
+            return JsonResponse({'error': 'Doctor not found'}, status=400)
 
     elif request.method == "DELETE":
         data = json.loads(request.body)
         
         try:
-            doctor = Doctor.objects.get(id=data['id'])
+            doctor = Doctor.objects.get(id=id)
             doctor.usuario.delete()
             return JsonResponse({'message' : 'Doctor deleted successfully.'})
         except:        
@@ -202,30 +225,32 @@ def doctors(request):
         data = json.loads(request.body)
 
         try:
-            doctor = Doctor.objects.get(id=data['id'])
+            with transaction.atomic():
+                doctor = Doctor.objects.get(id=id)
 
-            doctor.usuario.first_name = data['nombre']
-            doctor.usuario.last_name = data['apellidos']
-            doctor.usuario.FechaNacimiento = data['fecha_nacimiento']
-            doctor.usuario.Cedula = data['cedula']
-            doctor.usuario.Sexo = data['sexo']
-            doctor.usuario.username = "doctor" + data['cedula']
+                doctor.usuario.first_name = data['nombre']
+                doctor.usuario.last_name = data['apellidos']
+                doctor.usuario.FechaNacimiento = data['fecha_nacimiento']
+                doctor.usuario.Cedula = data['cedula']
+                doctor.usuario.Sexo = data['sexo']
+                doctor.usuario.username = "doctor" + data['cedula']
 
-            doctor.usuario.save()
+                doctor.usuario.save()
 
-            if 'especialidad' in data:
-                doctor.especialidad = Especialidad.objects.get(pk=data['especialidad'])
-            elif 'especialidad' and 'sub_especialidad' in data:
-                doctor.especialidad = Especialidad.objects.get(pk=data['especialidad'])
-                doctor.subespecialidad = SubEspecialidad.objects.get(pk=data['sub_especialidad'])
+                if 'especialidad' in data:
+                    doctor.especialidad = Especialidad.objects.get(pk=data['especialidad'])
+                elif 'especialidad' and 'sub_especialidad' in data:
+                    doctor.especialidad = Especialidad.objects.get(pk=data['especialidad'])
+                    doctor.subespecialidad = SubEspecialidad.objects.get(pk=data['sub_especialidad'])
 
-            doctor.save()
-            return JsonResponse({'message': 'Doctor modified succesfully.'}, status=200)
+                doctor.save()
+                return JsonResponse({'message': 'Doctor modified succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Doctor not found'}, status=400)
 
 
 @csrf_exempt
+@login_required
 def specialties(request):
     if request.method == 'GET':
         return JsonResponse([especialidad.serialize() for especialidad in Especialidad.objects.all()], safe=False)
@@ -268,6 +293,7 @@ def specialties(request):
             return JsonResponse({'error': 'Specialty not found'}, status=400)    
 
 @csrf_exempt
+@login_required
 def subspecialties(request):
     if request.method == 'GET':
         return JsonResponse([subespecialidad.serialize() for subespecialidad in SubEspecialidad.objects.all()], safe=False)
@@ -312,6 +338,7 @@ def subspecialties(request):
             return JsonResponse({'error': 'Subspecialty not found'}, status=400)  
 
 @csrf_exempt
+@login_required
 def usertypes(request):
     if request.method == 'GET':
         return JsonResponse([tipousuario.serialize() for tipousuario in TipoUsuario.objects.all()], safe=False)
@@ -380,7 +407,7 @@ def checkups(request):
             consulta.save()
             return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200)
         else:
-            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()])
+            return JsonResponse({'message': 'Permission denied.'}, status=401)
 
 @csrf_exempt
 @login_required
@@ -394,6 +421,25 @@ def checkups_patient(request, patient_id):
             return JsonResponse([consulta.serialize() for consulta in paciente.consultas], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=404)
+    elif request.method == 'POST' and user.tipoUsuario.id == 1:
+        if user.tipoUsuario.id == 4:
+            data = json.loads(request.body)
+        
+            paciente = Paciente.objects.get(id=patient_id)
+            doctor = Doctor.objects.get(id=data['doctor'])
+
+            consulta = Consulta(
+                paciente = paciente,
+                doctor = doctor,
+                Titulo = data['titulo'],
+                Descripcion = data['descripcion'],
+                Fecha = data['fecha']
+            )
+
+            consulta.save()
+            return JsonResponse({f'Checkup for patient {paciente.usuario.first_name} {paciente.usuario.last_name} by doctor {doctor.usuario.first_name} {doctor.usuario.last_name} created succesfully'}, status=200)
+        else:
+            return JsonResponse({'message': 'Permission denied.'}, status=401)
 
 @csrf_exempt
 @login_required

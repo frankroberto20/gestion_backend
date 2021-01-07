@@ -33,6 +33,9 @@ class Usuario(AbstractUser):
 
     def serialize(self):
         return {
+            'id': self.id,
+            'usuario': self.username,
+            #'id_usuario_relacionado': self.relacion.id,
             'tipo_usuario': self.tipoUsuario.id,
             'nombre': self.first_name,
             'apellidos': self.last_name,
@@ -51,7 +54,7 @@ class Enfermedad(models.Model):
         }
 
 class Paciente(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete= models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete= models.CASCADE, related_name='relacion')
     NombreTutor = models.CharField(max_length=100, blank= True)
     CedulaTutor = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')], blank=True)
     Enfermedades = models.ManyToManyField(Enfermedad)
@@ -113,21 +116,18 @@ class Consulta(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='consultas')
     Titulo = models.CharField(max_length = 100)
     Descripcion = models.TextField()
-    Fecha = models.DateTimeField()
+    Fecha = models.DateTimeField(default=datetime.datetime.now())
+    Archivo = models.FileField(upload_to='consultas', blank=True)
 
     def serialize(self):
         return {
             'id': self.id,
-            'nombre': self.paciente.usuario.first_name,
-            'apellidos': self.paciente.usuario.last_name,
-            'sexo': self.paciente.usuario.Sexo,
-            'fecha_nacimiento': self.paciente.usuario.FechaNacimiento,
-            'cedula': self.paciente.usuario.Cedula,
-            'nombre': self.doctor.usuario.first_name,
-            'apellidos': self.doctor.usuario.last_name,
-            'sexo': self.doctor.usuario.Sexo,
-            'especialidad': self.doctor.especialidad.id,
-            'sub_especialidad': self.doctor.subespecialidad.id
+            'paciente': f'{self.paciente.usuario.first_name} {self.paciente.usuario.last_name}',
+            'doctor': f'{self.doctor.usuario.first_name} {self.doctor.usuario.last_name}',
+            'titulo': self.Titulo,
+            'descripcion': self.Descripcion,
+            'fecha': self.Fecha,
+            'archivo': self.Archivo.url
         }
 
 
