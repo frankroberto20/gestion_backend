@@ -58,7 +58,7 @@ class Paciente(models.Model):
 
     def serialize(self):
         return {
-            'id': self.id,
+            'patient_id': self.id,
             'tipo_usuario': self.usuario.tipoUsuario.id,
             'nombre': self.usuario.first_name,
             'apellidos': self.usuario.last_name,
