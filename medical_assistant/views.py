@@ -58,7 +58,8 @@ def patients(request):
             FechaNacimiento = data['fecha_nacimiento'],
             Cedula = data['cedula'],
             Sexo = data['sexo'],
-            username = "paciente" + data['cedula']
+            username = "paciente" + data['cedula'],
+            tipoUsuario = TipoUsuario.objects.get(id=3)
         )
 
         usuario.save()
@@ -76,13 +77,59 @@ def patients(request):
 
         if 'enfermedad' in data:
             for enfermedad in data['enfermedad']:
-                paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
+                #paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
+                paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
 
         paciente.save()
         return JsonResponse({'message': 'Patient added succesfully.'}, status=200)
 
         #except e:
             #return JsonResponse({'error': f'Error adding patient. {e}'}, status=400)
+
+    elif request.method == "DELETE":
+        data = json.loads(request.body)
+
+        usuario = Usuario.objects.get(id=data['id'])
+
+        if(usuario.tipoUsuario == TipoUsuario.objects.get(id=2)):
+            usuario.delete()
+            return JsonResponse({'message' : 'Patient deleted successfully.'})
+        
+        return JsonResponse({'message': "The patient doesn't exist"})
+
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+
+        usuario = Usuario.objects.get(id=data['usuario_id'])
+
+        usuario.first_name = data['nombre']
+        usuario.last_name = data['apellidos']
+        usuario.FechaNacimiento = data['fecha_nacimiento']
+        usuario.Cedula = data['cedula']
+        usuario.Sexo = data['sexo']
+        usuario.username = "paciente" + data['cedula']
+
+        usuario.save()
+
+        if 'nombre_tutor' and 'cedula_tutor' in data:
+            paciente = Paciente(
+            usuario = usuario,
+            NombreTutor = data['nombre_tutor'],
+            CedulaTutor = data['cedula_tutor']
+            )
+        else:
+            paciente = Paciente(
+            usuario = usuario
+        )
+
+        if 'enfermedad' in data:
+            for enfermedad in data['enfermedad']:
+                #paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
+                paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
+
+        paciente.save()
+        return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
+
 
 @csrf_exempt
 def patient_by_id(request, id):
