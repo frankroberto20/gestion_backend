@@ -88,57 +88,55 @@ def patients(request):
         except:
             return JsonResponse({'error': f'Error adding patient.'}, status=400)
 
-    elif request.method == "DELETE":
-        data = json.loads(request.body)
-
-        usuario = Usuario.objects.get(id=data['id'])
-
-        if(usuario.tipoUsuario == TipoUsuario.objects.get(id=2)):
-            usuario.delete()
-            return JsonResponse({'message' : 'Patient deleted successfully.'})
-        
-        return JsonResponse({'message': "The patient doesn't exist"})
-
-    elif request.method == "PATCH":
-        data = json.loads(request.body)
-
-        usuario = Usuario.objects.get(id=data['usuario_id'])
-
-        usuario.first_name = data['nombre']
-        usuario.last_name = data['apellidos']
-        usuario.FechaNacimiento = data['fecha_nacimiento']
-        usuario.Cedula = data['cedula']
-        usuario.Sexo = data['sexo']
-        usuario.username = "paciente" + data['cedula']
-
-        usuario.save()
-
-        if 'nombre_tutor' and 'cedula_tutor' in data:
-            paciente = Paciente(
-            usuario = usuario,
-            NombreTutor = data['nombre_tutor'],
-            CedulaTutor = data['cedula_tutor']
-            )
-        else:
-            paciente = Paciente(
-            usuario = usuario
-        )
-
-        if 'enfermedad' in data:
-            for enfermedad in data['enfermedad']:
-                #paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
-                paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
-
-        paciente.save()
-        return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
-
 
 @csrf_exempt
 def patient_by_id(request, id):
     if request.method == 'GET':
         try:
-            paciente = Paciente.objects.get(pk=id)
+            paciente = Paciente.objects.get(id=id)
             return JsonResponse(paciente.serialize(), safe=False, status=200)
+        except:
+            return JsonResponse({'error': 'Patient not found'}, status=400)
+
+    elif request.method == "DELETE":
+
+        try:
+            paciente = Paciente.objects.get(id= id)
+            paciente.usuario.delete()
+            return JsonResponse({'message' : 'Patient deleted successfully.'})
+        except:        
+            return JsonResponse({'error': "Patient not found"}, status = 400)
+
+
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+
+        try:
+            paciente = Paciente.objects.get(id=id)
+
+            usuario.first_name = data['nombre']
+            usuario.last_name = data['apellidos']
+            usuario.FechaNacimiento = data['fecha_nacimiento']
+            usuario.Cedula = data['cedula']
+            usuario.Sexo = data['sexo']
+            usuario.username = "paciente" + data['cedula']
+
+            usuario.save()
+
+            if 'nombre_tutor' and 'cedula_tutor' in data:
+                paciente.usuario = usuario
+                paciente.NombreTutor = data['nombre_tutor']
+                paciente.CedulaTutor = data['cedula_tutor']
+            else:
+                paciente.usuario = usuario
+
+            if 'enfermedad' in data:
+                for enfermedad in data['enfermedad']:
+                    #paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
+                    paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
+
+            paciente.save()
+            return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=400)
          
