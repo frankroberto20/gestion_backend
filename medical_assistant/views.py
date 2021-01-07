@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 
 from .models import *
 
@@ -51,40 +52,41 @@ def patients(request):
     elif request.method == 'POST':
         data = json.loads(request.body)
 
-        #try:
-        usuario = Usuario(
-            first_name = data['nombre'],
-            last_name = data['apellidos'],
-            FechaNacimiento = data['fecha_nacimiento'],
-            Cedula = data['cedula'],
-            Sexo = data['sexo'],
-            username = "paciente" + data['cedula'],
-            tipoUsuario = TipoUsuario.objects.get(id=3)
-        )
+        try:
+            with transaction.atomic():
+                usuario = Usuario(
+                    first_name = data['nombre'],
+                    last_name = data['apellidos'],
+                    FechaNacimiento = data['fecha_nacimiento'],
+                    Cedula = data['cedula'],
+                    Sexo = data['sexo'],
+                    username = "paciente" + data['cedula'],
+                    tipoUsuario = TipoUsuario.objects.get(id=3)
+                )
 
-        usuario.save()
+                usuario.save()
 
-        if 'nombre_tutor' and 'cedula_tutor' in data:
-            paciente = Paciente(
-            usuario = usuario,
-            NombreTutor = data['nombre_tutor'],
-            CedulaTutor = data['cedula_tutor']
-            )
-        else:
-            paciente = Paciente(
-            usuario = usuario
-        )
+                if 'nombre_tutor' and 'cedula_tutor' in data:
+                    paciente = Paciente(
+                    usuario = usuario,
+                    NombreTutor = data['nombre_tutor'],
+                    CedulaTutor = data['cedula_tutor']
+                    )
+                else:
+                    paciente = Paciente(
+                    usuario = usuario
+                )
+                
+                paciente.save()
 
-        if 'enfermedad' in data:
-            for enfermedad in data['enfermedad']:
-                #paciente.enfermedades.add(Enfermedad.get(pk=enfermedad))
-                paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
+                if 'enfermedad' in data:
+                    for enfermedad in data['enfermedad']:
+                        paciente.Enfermedades.add(Enfermedad.objects.get(pk=enfermedad))
 
-        paciente.save()
-        return JsonResponse({'message': 'Patient added succesfully.'}, status=200)
+            return JsonResponse({'message': 'Patient added succesfully.'}, status=200)
 
-        #except e:
-            #return JsonResponse({'error': f'Error adding patient. {e}'}, status=400)
+        except:
+            return JsonResponse({'error': f'Error adding patient.'}, status=400)
 
     elif request.method == "DELETE":
         data = json.loads(request.body)
@@ -139,7 +141,7 @@ def patient_by_id(request, id):
             return JsonResponse(paciente.serialize(), safe=False, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=400)
-            
+         
 @csrf_exempt
 def diseases(request):
     if request.method == 'GET':
