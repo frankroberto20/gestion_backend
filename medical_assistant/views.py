@@ -401,7 +401,8 @@ def checkups(request):
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
-                Fecha = data['fecha']
+                Fecha = data['fecha'],
+                Archivo = data['archivo']
             )
 
             consulta.save()
