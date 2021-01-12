@@ -130,24 +130,32 @@ def patient_by_id(request, id):
             with transaction.atomic():
                 paciente = Paciente.objects.get(id=id)
                 
-                paciente.usuario.first_name = data['nombre']
-                paciente.usuario.last_name = data['apellidos']
-                paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
-                paciente.usuario.Cedula = data['cedula']
-                paciente.usuario.Sexo = data['sexo']
-                paciente.usuario.username = "paciente" + data['cedula']
+                if 'cedula' in data:
+                    paciente.usuario.first_name = data['nombre']
+                    paciente.usuario.last_name = data['apellidos']
+                    paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
+                    paciente.usuario.Cedula = data['cedula']
+                    paciente.usuario.Sexo = data['sexo']
+                    paciente.usuario.username = "paciente" + data['cedula']
+                else:
+                    paciente.usuario.first_name = data['nombre']
+                    paciente.usuario.last_name = data['apellidos']
+                    paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
+                    paciente.usuario.Sexo = data['sexo']
+                    paciente.usuario.username = "paciente" + data['cedula']
 
-                paciente.usuario.save()
-
-                if 'nombre_tutor' and 'cedula_tutor' in data:
-                    paciente.NombreTutor = data['nombre_tutor']
-                    paciente.CedulaTutor = data['cedula_tutor']
+                    if 'nombre_tutor' and 'cedula_tutor' in data:
+                        paciente.NombreTutor = data['nombre_tutor']
+                        paciente.CedulaTutor = data['cedula_tutor']
+                    paciente.usuario.username = 'paciente__' + paciente.CedulaTutor
 
                 if 'enfermedad' in data:
                     for enfermedad in data['enfermedad']:
                         paciente.Enfermedades = Enfermedad.objects.get(NombreEnfermedad=enfermedad)
 
+                paciente.usuario.save()
                 paciente.save()
+
                 return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=400)
