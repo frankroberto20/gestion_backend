@@ -56,29 +56,40 @@ def patients(request):
 
         try:
             with transaction.atomic():
-                usuario = Usuario(
-                    first_name = data['nombre'],
-                    last_name = data['apellidos'],
-                    FechaNacimiento = data['fecha_nacimiento'],
-                    Cedula = data['cedula'],
-                    Sexo = data['sexo'],
-                    username = "paciente" + data['cedula'],
-                    password = '1234',
-                    tipoUsuario = TipoUsuario.objects.get(id=3)
-                )
+                if 'cedula' in data:
+                    usuario = Usuario(
+                        first_name = data['nombre'],
+                        last_name = data['apellidos'],
+                        FechaNacimiento = data['fecha_nacimiento'],
+                        Cedula = data['cedula'],
+                        Sexo = data['sexo'],
+                        username = "paciente" + data['cedula'],
+                        password = '1234',
+                        tipoUsuario = TipoUsuario.objects.get(id=3)
+                    )
 
-                usuario.save()
-
-                if 'nombre_tutor' and 'cedula_tutor' in data:
                     paciente = Paciente(
-                    usuario = usuario,
-                    NombreTutor = data['nombre_tutor'],
-                    CedulaTutor = data['cedula_tutor']
+                        usuario = usuario
                     )
                 else:
-                    paciente = Paciente(
-                    usuario = usuario
-                )
+                    usuario = Usuario(
+                        first_name = data['nombre'],
+                        last_name = data['apellidos'],
+                        FechaNacimiento = data['fecha_nacimiento'],
+                        Sexo = data['sexo'],
+                        password = '1234',
+                        tipoUsuario = TipoUsuario.objects.get(id=3)
+                    )
+                    
+                    if 'nombre_tutor' and 'cedula_tutor' in data:
+                        paciente = Paciente(
+                        usuario = usuario,
+                        NombreTutor = data['nombre_tutor'],
+                        CedulaTutor = data['cedula_tutor']
+                        )
+                    paciente.usuario.username = 'paciente__' + paciente.CedulaTutor
+
+                usuario.save()
                 
                 paciente.save()
 
@@ -449,9 +460,9 @@ def checkups_doctor(request, doctor_id):
     if request.method == 'GET' and user.tipoUsuario.id == 1:
         try:
             doctor = Doctor.objects.get(id=doctor_id)
-            #if paciente.consultas.count() == 0:
-            #    return JsonResponse({'message': 'No checkups found'}, status=200)
-            return JsonResponse([consulta.serialize() for consulta in doctor.consultas], safe=False, status=200)
+                #if paciente.consultas.count() == 0:
+                #    return JsonResponse({'message': 'No checkups found'}, status=200)
+            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.filter(doctor = doctor)], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Doctor not found'}, status=404)
 

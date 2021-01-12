@@ -26,7 +26,7 @@ class Usuario(AbstractUser):
     tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE, default=1)
     Sexo = models.CharField(max_length = 10)
     FechaNacimiento = models.DateField(default=datetime.date.today())
-    Cedula = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')])
+    Cedula = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')], blank=True)
     FechaRegistro = models.DateTimeField(default=timezone.now())
 
     def __str__(self):
@@ -118,7 +118,7 @@ class Consulta(models.Model):
     Titulo = models.CharField(max_length = 100)
     Descripcion = models.TextField()
     Fecha = models.DateTimeField(default=datetime.datetime.now())
-    Archivo = CloudinaryField('archivo', resource_type='auto')
+    #Archivo = CloudinaryField('archivo', resource_type='auto')
 
     def serialize(self):
         return {
@@ -128,7 +128,7 @@ class Consulta(models.Model):
             'titulo': self.Titulo,
             'descripcion': self.Descripcion,
             'fecha': self.Fecha,
-            'archivo': self.Archivo.url
+            #'archivo': self.Archivo.url
         }
 
 
