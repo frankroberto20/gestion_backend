@@ -6,7 +6,7 @@ from django.db.models.deletion import CASCADE
 from django.db.models.fields import DateField
 from django.core.validators import RegexValidator
 from django.db.models.fields.related import ForeignKey
-from cloudinary import models
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
@@ -118,7 +118,7 @@ class Consulta(models.Model):
     Titulo = models.CharField(max_length = 100)
     Descripcion = models.TextField()
     Fecha = models.DateTimeField(default=datetime.datetime.now())
-    Archivo = models.CloudinaryField('archivo', resource_type='auto')
+    Archivo = CloudinaryField('archivo', resource_type='auto')
 
     def serialize(self):
         return {
