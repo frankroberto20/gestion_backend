@@ -11,7 +11,12 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import django_heroku
+import cloudinary
 from pathlib import Path
+
+cloudinary.config(cloud_name='fams-library',
+                  api_key='561514468944781',
+                  api_secret='7V8BPYIZQ07R_A7Ay-iAh4nljLQ')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -31,6 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary',
     'medical_assistant',
     'django.contrib.admin',
     'django.contrib.auth',
