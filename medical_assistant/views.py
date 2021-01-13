@@ -288,7 +288,7 @@ def specialties(request):
         data = json.loads(request.body)
         
         try:
-            specialty = Especialidad.objects.get(id=data['id'])
+            specialty = Especialidad.objects.get(id=data['especialidad'])
             specialty.delete()
             return JsonResponse({'message' : 'Specialty deleted successfully.'})
         except:        
@@ -299,7 +299,7 @@ def specialties(request):
         data = json.loads(request.body)
 
         try:
-            specialty = Especialidad.objects.get(id=data['id'])
+            specialty = Especialidad.objects.get(id=data['especialidad'])
 
             specialty.NombreEspecialidad = data['nombre_especialidad']
 
@@ -332,7 +332,7 @@ def subspecialties(request):
         data = json.loads(request.body)
         
         try:
-            subspecialty = SubEspecialidad.objects.get(id=data['id'])
+            subspecialty = SubEspecialidad.objects.get(id=data['subespecialidad'])
             subspecialty.delete()
             return JsonResponse({'message' : 'Subspecialty deleted successfully.'})
         except:        
@@ -343,7 +343,7 @@ def subspecialties(request):
         data = json.loads(request.body)
 
         try:
-            subspecialty = SubEspecialidad.objects.get(id=data['id'])
+            subspecialty = SubEspecialidad.objects.get(id=data['subespecialidad'])
 
             subspecialty.NombreSubEspecialidad = data['nombre_subespecialidad']
             subspecialty.especialidad = Especialidad.objects.get(id=data['especialidad'])
@@ -376,7 +376,7 @@ def usertypes(request):
         data = json.loads(request.body)
         
         try:
-            tipo_usuario = TipoUsuario.objects.get(id=data['id'])
+            tipo_usuario = TipoUsuario.objects.get(id=data['id_tipousuario'])
             tipo_usuario.delete()
             return JsonResponse({'message' : 'UserType deleted successfully.'})
         except:        
@@ -387,7 +387,7 @@ def usertypes(request):
         data = json.loads(request.body)
 
         try:
-            tipo_usuario = TipoUsuario.objects.get(id=data['id'])
+            tipo_usuario = TipoUsuario.objects.get(id=data['id_tipousuario'])
 
             tipo_usuario.NombreTipoUsuario = data['nombre_tipousuario']
 
@@ -453,7 +453,7 @@ def checkups_patient(request, patient_id):
             paciente = Paciente.objects.get(id=patient_id)
             #if paciente.consultas.count() == 0:
             #    return JsonResponse({'message': 'No checkups found'}, status=200)
-            return JsonResponse([consulta.serialize() for consulta in paciente.consultas], safe=False, status=200)
+            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.filter(paciente = paciente)], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=404)
     elif request.method == 'POST' and user.tipoUsuario.id == 1:
