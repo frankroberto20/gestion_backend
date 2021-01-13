@@ -23,7 +23,7 @@ class TipoUsuario(models.Model):
         }
 
 class Usuario(AbstractUser):
-    TipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE, default=1)
+    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE, default=1)
     Sexo = models.CharField(max_length = 10)
     FechaNacimiento = models.DateField(default=datetime.date.today())
     Cedula = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')], blank=True)
