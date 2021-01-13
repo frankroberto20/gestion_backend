@@ -171,7 +171,7 @@ def diseases(request):
                 NombreEnfermedad = data['nombre_enfermedad']
             )
             enfermedad.save()
-            JsonResponse({'message': 'Disease added succesfully.'}, status=200)
+            JsonResponse({'message': 'Disease added succesfully.', 'id': enfermedad.id}, status=200)
         
         except:
             JsonResponse({'error': 'Error in adding disease.'}, status=400)
@@ -279,7 +279,7 @@ def specialties(request):
                 NombreEspecialidad = data['nombre_especialidad'],
             )
             especialidad.save()
-            return JsonResponse({'message': 'Especialty created succesfully.'}, status=200)
+            return JsonResponse({'message': 'Especialty created succesfully.', 'id': especialidad.id}, status=200)
         except:
             return JsonResponse({'error': 'Error in creating especialty'}, status=400)
 
@@ -323,7 +323,7 @@ def subspecialties(request):
                 especialidad = Especialidad.objects.get(pk=data['especialidad'])
             )
             subespecialidad.save()
-            return JsonResponse({'message': 'Subespecialty created succesfully.'}, status=200)
+            return JsonResponse({'message': 'Subespecialty created succesfully.', 'id': subespecialidad.id}, status=200)
         except:
             return JsonResponse({'error': 'Error in creating subespecialty'}, status=400)
 
