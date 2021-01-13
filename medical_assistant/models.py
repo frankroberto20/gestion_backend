@@ -118,7 +118,7 @@ class Consulta(models.Model):
     Titulo = models.CharField(max_length = 100)
     Descripcion = models.TextField()
     Fecha = models.DateTimeField(default=datetime.datetime.now())
-    Archivo = CloudinaryField('archivo', resource_type='auto')
+    Archivo = CloudinaryField('archivo', resource_type='auto', null=True)
 
     def serialize(self):
         return {
