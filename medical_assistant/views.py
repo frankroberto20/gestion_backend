@@ -401,8 +401,10 @@ def usertypes(request):
 def checkups(request):
     user = request.user
     if request.method == 'GET':
-        if user.tipoUsuario.id == 3 or user.tipoUsuario.id == 4:
-            return JsonResponse([consulta.serialize() for consulta in user.consultas], safe=False, status=200)
+        if user.tipoUsuario.id == 3:
+            return JsonResponse([consulta.serialize() for consulta in user.paciente.consultas.all()], safe=False, status=200)
+        elif user.tipoUsuario.id == 4:
+            return JsonResponse([consulta.serialize() for consulta in user.doctor.consultas.all()], safe=False, status=200)
         else:
             return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()], safe=False, status=200)
     if request.method == 'POST':
