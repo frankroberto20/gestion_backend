@@ -63,8 +63,8 @@ def patients(request):
                         FechaNacimiento = data['fecha_nacimiento'],
                         Cedula = data['cedula'],
                         Sexo = data['sexo'],
-                        username = "paciente" + data['cedula'],
-                        password = '1234',
+                        username = data['username'],
+                        password = data['password'],
                         tipoUsuario = TipoUsuario.objects.get(id=3)
                     )
 
@@ -77,25 +77,24 @@ def patients(request):
                         last_name = data['apellidos'],
                         FechaNacimiento = data['fecha_nacimiento'],
                         Sexo = data['sexo'],
-                        password = '1234',
+                        username = data['username'],
+                        password = data['password'],
                         tipoUsuario = TipoUsuario.objects.get(id=3)
                     )
                     
-                    if 'nombre_tutor' and 'cedula_tutor' in data:
-                        paciente = Paciente(
+                    paciente = Paciente(
                         usuario = usuario,
                         NombreTutor = data['nombre_tutor'],
                         CedulaTutor = data['cedula_tutor']
-                        )
-                    paciente.usuario.username = 'paciente__' + paciente.CedulaTutor
-
-                usuario.save()
-                
-                paciente.save()
+                    )
 
                 if 'enfermedad' in data:
                     for enfermedad in data['enfermedad']:
                         paciente.Enfermedades.add(Enfermedad.objects.get(pk=enfermedad))
+                
+                usuario.save()
+                
+                paciente.save()
 
             return JsonResponse({'message': 'Patient added succesfully.'}, status=200)
 
@@ -136,18 +135,16 @@ def patient_by_id(request, id):
                     paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
                     paciente.usuario.Cedula = data['cedula']
                     paciente.usuario.Sexo = data['sexo']
-                    paciente.usuario.username = "paciente" + data['cedula']
+                    paciente.usuario.username = data['username']
                 else:
                     paciente.usuario.first_name = data['nombre']
                     paciente.usuario.last_name = data['apellidos']
                     paciente.usuario.FechaNacimiento = data['fecha_nacimiento']
                     paciente.usuario.Sexo = data['sexo']
-                    paciente.usuario.username = "paciente" + data['cedula']
+                    paciente.usuario.username = data['username']
 
-                    if 'nombre_tutor' and 'cedula_tutor' in data:
-                        paciente.NombreTutor = data['nombre_tutor']
-                        paciente.CedulaTutor = data['cedula_tutor']
-                    paciente.usuario.username = 'paciente__' + paciente.CedulaTutor
+                    paciente.NombreTutor = data['nombre_tutor']
+                    paciente.CedulaTutor = data['cedula_tutor']
 
                 if 'enfermedad' in data:
                     for enfermedad in data['enfermedad']:
@@ -198,8 +195,8 @@ def doctors(request):
                     FechaNacimiento = data['fecha_nacimiento'],
                     Cedula = data['cedula'],
                     Sexo = data['sexo'],
-                    username = "doctor" + data['cedula'],
-                    password = '1234',
+                    username = data['username'],
+                    password = data['password'],
                     tipoUsuario = TipoUsuario.objects.get(id=4)
                 )
                 usuario.save()
@@ -252,7 +249,8 @@ def doctor_by_id(request, id):
                 doctor.usuario.FechaNacimiento = data['fecha_nacimiento']
                 doctor.usuario.Cedula = data['cedula']
                 doctor.usuario.Sexo = data['sexo']
-                doctor.usuario.username = "doctor" + data['cedula']
+                doctor.usuario.username = data['username']
+                doctor.usuario.password = data['password']
 
                 doctor.usuario.save()
 
@@ -473,4 +471,5 @@ def checkups_doctor(request, doctor_id):
             return JsonResponse([consulta.serialize() for consulta in Consulta.objects.filter(doctor = doctor)], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Doctor not found'}, status=404)
+
 
