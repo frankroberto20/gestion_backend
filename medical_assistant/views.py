@@ -486,14 +486,15 @@ def checkups_doctor(request, doctor_id):
             return JsonResponse({'error': 'Doctor not found'}, status=404)
 
 
+@csrf_exempt
 def search_patients(request):
     if request.method == 'POST':
         search_str = json.loads(request.body).get('searchText')
 
         patient = Usuario.objects.filter(
-            username__icontains=search_str) | Usuario.filter(
-            Cedula__icontains=search_str) | Usuario.filter(
-            tipoUsuario=3) 
+            username__icontains=search_str) | Usuario.objects.filter(
+            Cedula__icontains=search_str) | Usuario.objects.filter(
+            TipoUsuario=3) 
         
         data = patient.values()
         return JsonResponse(list(data), safe=False)
