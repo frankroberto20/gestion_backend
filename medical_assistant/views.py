@@ -424,6 +424,23 @@ def checkups(request):
 
             consulta.save()
             return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200)
+        elif user.tipoUsuario.id == 2 or user.tipoUsuario.id == 1:
+            data = json.loads(request.body)
+        
+            paciente = Paciente.objects.get(id=data['paciente'])
+            doctor = Doctor.objects.get(id=data['doctor'])
+
+            consulta = Consulta(
+                paciente = paciente,
+                doctor = doctor,
+                Titulo = data['titulo'],
+                Descripcion = data['descripcion'],
+                Fecha = data['fecha'],
+                Archivo = data['archivo']
+            )
+
+            consulta.save()
+            return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200)
         else:
             return JsonResponse({'message': 'Permission denied.'}, status=401)
 
