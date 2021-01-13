@@ -155,7 +155,7 @@ def patient_by_id(request, id):
 
                 paciente.usuario.save()
                 paciente.save()
-
+                
                 return JsonResponse({'message': 'Patient modified succesfully.'}, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=400)
