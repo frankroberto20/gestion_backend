@@ -64,10 +64,9 @@ def patients(request):
                         Cedula = data['cedula'],
                         Sexo = data['sexo'],
                         username = data['username'],
-                        password = data['password'],
                         tipoUsuario = TipoUsuario.objects.get(id=3)
                     )
-
+                    usuario.set_password(data['password'])
                     paciente = Paciente(
                         usuario = usuario
                     )
@@ -196,9 +195,9 @@ def doctors(request):
                     Cedula = data['cedula'],
                     Sexo = data['sexo'],
                     username = data['username'],
-                    password = data['password'],
                     tipoUsuario = TipoUsuario.objects.get(id=4)
                 )
+                usuario.set_password(data['password'])
                 usuario.save()
 
                 doctor = Doctor(
