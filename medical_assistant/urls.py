@@ -20,5 +20,6 @@ urlpatterns = [
     path('usertypes', views.usertypes, name='usertypes'),
     path('checkups', views.checkups, name='checkups'),
     path('checkups/patient/<int:patient_id>', views.checkups_patient, name='checkups_patient'),
-    path('checkups/doctor/<int:doctor_id>', views.checkups_doctor, name='checkups_doctor')
+    path('checkups/doctor/<int:doctor_id>', views.checkups_doctor, name='checkups_doctor'),
+    path('search-patients', views.search_patients, name="search_patients")
 ]
