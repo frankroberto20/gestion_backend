@@ -55,7 +55,7 @@ class Enfermedad(models.Model):
         }
 
 class Paciente(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete= models.CASCADE, related_name='relacion')
+    usuario = models.OneToOneField(Usuario, on_delete= models.CASCADE)
     NombreTutor = models.CharField(max_length=100, blank= True)
     CedulaTutor = models.CharField(max_length=11, validators=[RegexValidator(regex='^.{11}$', message='Length has to be 11', code='nomatch')], blank=True)
     Enfermedades = models.ManyToManyField(Enfermedad)
@@ -96,7 +96,7 @@ class SubEspecialidad(models.Model):
         }
 
 class Doctor(models.Model):
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     especialidad = models.ForeignKey(Especialidad, on_delete=models.CASCADE)
     subespecialidad = models.ForeignKey(SubEspecialidad, on_delete = models.CASCADE)
 

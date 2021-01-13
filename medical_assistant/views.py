@@ -410,19 +410,18 @@ def checkups(request):
             data = json.loads(request.body)
         
             paciente = Paciente.objects.get(id=data['paciente'])
-            doctor = user.relacion
+            doctor = user.doctor
 
             consulta = Consulta(
                 paciente = paciente,
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
-                Fecha = data['fecha'],
                 Archivo = data['archivo']
             )
 
             consulta.save()
-            return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200)
+            return JsonResponse({'message': f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
         elif user.tipoUsuario.id == 2 or user.tipoUsuario.id == 1:
             data = json.loads(request.body)
         
@@ -434,12 +433,11 @@ def checkups(request):
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
-                Fecha = data['fecha'],
                 Archivo = data['archivo']
             )
 
             consulta.save()
-            return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200)
+            return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
         else:
             return JsonResponse({'message': 'Permission denied.'}, status=401)
 
@@ -459,7 +457,7 @@ def checkups_patient(request, patient_id):
         data = json.loads(request.body)
     
         paciente = Paciente.objects.get(id=patient_id)
-        doctor = user.relacion
+        doctor = user.doctor
 
         consulta = Consulta(
             paciente = paciente,
@@ -470,7 +468,7 @@ def checkups_patient(request, patient_id):
         )
 
         consulta.save()
-        return JsonResponse({f'Checkup for patient {paciente.usuario.first_name} {paciente.usuario.last_name} by doctor {doctor.usuario.first_name} {doctor.usuario.last_name} created succesfully'}, status=200)
+        return JsonResponse({'message': f'Checkup for patient {paciente.usuario.first_name} {paciente.usuario.last_name} by doctor {doctor.usuario.first_name} {doctor.usuario.last_name} created succesfully'}, status=200)
     else:
         return JsonResponse({'message': 'Permission denied.'}, status=401)
 
