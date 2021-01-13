@@ -410,7 +410,7 @@ def checkups(request):
             data = json.loads(request.body)
         
             paciente = Paciente.objects.get(id=data['paciente'])
-            doctor = user
+            doctor = Doctor.objects.get(id=user.id)
 
             consulta = Consulta(
                 paciente = paciente,
@@ -455,25 +455,24 @@ def checkups_patient(request, patient_id):
             return JsonResponse([consulta.serialize() for consulta in Consulta.objects.filter(paciente = paciente)], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=404)
-    elif request.method == 'POST' and user.tipoUsuario.id == 1:
-        if user.tipoUsuario.id == 4:
-            data = json.loads(request.body)
-        
-            paciente = Paciente.objects.get(id=patient_id)
-            doctor = Doctor.objects.get(id=data['doctor'])
+    elif request.method == 'POST' and user.tipoUsuario.id == 4:
+        data = json.loads(request.body)
+    
+        paciente = Paciente.objects.get(id=patient_id)
+        doctor = Doctor.objects.get(id=user.id)
 
-            consulta = Consulta(
-                paciente = paciente,
-                doctor = doctor,
-                Titulo = data['titulo'],
-                Descripcion = data['descripcion'],
-                Fecha = data['fecha']
-            )
+        consulta = Consulta(
+            paciente = paciente,
+            doctor = doctor,
+            Titulo = data['titulo'],
+            Descripcion = data['descripcion'],
+            Fecha = data['fecha']
+        )
 
-            consulta.save()
-            return JsonResponse({f'Checkup for patient {paciente.usuario.first_name} {paciente.usuario.last_name} by doctor {doctor.usuario.first_name} {doctor.usuario.last_name} created succesfully'}, status=200)
-        else:
-            return JsonResponse({'message': 'Permission denied.'}, status=401)
+        consulta.save()
+        return JsonResponse({f'Checkup for patient {paciente.usuario.first_name} {paciente.usuario.last_name} by doctor {doctor.usuario.first_name} {doctor.usuario.last_name} created succesfully'}, status=200)
+    else:
+        return JsonResponse({'message': 'Permission denied.'}, status=401)
 
 @csrf_exempt
 @login_required
