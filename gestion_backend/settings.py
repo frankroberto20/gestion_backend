@@ -14,10 +14,6 @@ import django_heroku
 import cloudinary
 from pathlib import Path
 
-cloudinary.config(cloud_name='fams-library',
-                  api_key='561514468944781',
-                  api_secret='7V8BPYIZQ07R_A7Ay-iAh4nljLQ')
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -45,6 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+cloudinary.config(cloud_name='fams-library',
+                  api_key='561514468944781',
+                  api_secret='7V8BPYIZQ07R_A7Ay-iAh4nljLQ')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
