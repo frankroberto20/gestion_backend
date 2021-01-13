@@ -410,7 +410,7 @@ def checkups(request):
             data = json.loads(request.body)
         
             paciente = Paciente.objects.get(id=data['paciente'])
-            doctor = Doctor.objects.get(id=user.id)
+            doctor = user.relacion
 
             consulta = Consulta(
                 paciente = paciente,
@@ -459,7 +459,7 @@ def checkups_patient(request, patient_id):
         data = json.loads(request.body)
     
         paciente = Paciente.objects.get(id=patient_id)
-        doctor = Doctor.objects.get(id=user.id)
+        doctor = user.relacion
 
         consulta = Consulta(
             paciente = paciente,
