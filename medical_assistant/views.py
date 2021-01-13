@@ -355,7 +355,7 @@ def subspecialties(request):
             return JsonResponse({'error': 'Subspecialty not found'}, status=400)  
 
 @csrf_exempt
-@login_required
+#@login_required
 def usertypes(request):
     if request.method == 'GET':
         return JsonResponse([tipousuario.serialize() for tipousuario in TipoUsuario.objects.all()], safe=False)
