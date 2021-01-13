@@ -494,7 +494,7 @@ def search_patients(request):
         patient = Usuario.objects.filter(
             username__icontains=search_str) | Usuario.objects.filter(
             Cedula__icontains=search_str) | Usuario.objects.filter(
-            TipoUsuario=3) 
+            tipoUsuario=3) 
         
         data = patient.values()
         return JsonResponse(list(data), safe=False)
