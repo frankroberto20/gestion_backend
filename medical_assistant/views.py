@@ -492,13 +492,12 @@ def checkups_doctor(request, doctor_id):
 
 def search_patients(request):
     if request.method == 'POST':
-        search_str = json.loads.(request.body).get('searchText')
+        search_str = json.loads(request.body).get('searchText')
 
         patient = Usuario.objects.filter(
             username__icontains=search_str) | Usuario.filter(
             Cedula__icontains=search_str) | Usuario.filter(
             tipoUsuario=3) 
         
-    data = patient.values()
-
-    return JsonResponse(list(data), safe=False)
+        data = patient.values()
+        return JsonResponse(list(data), safe=False)
