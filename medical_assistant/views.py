@@ -405,7 +405,7 @@ def checkups(request):
         if user.tipoUsuario.id == 3 or user.tipoUsuario.id == 4:
             return JsonResponse([consulta.serialize() for consulta in user.consultas], safe=False, status=200)
         else:
-            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()])
+            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()], safe=False, status=200)
     if request.method == 'POST':
         if user.tipoUsuario.id == 4:
             data = json.loads(request.body)
