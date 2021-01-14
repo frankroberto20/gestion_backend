@@ -8,6 +8,8 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
+import cloudinary
+import cloudinary.uploader
 
 from .models import *
 
@@ -419,7 +421,7 @@ def checkups(request):
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
-                Archivo = data['archivo']
+                Archivo = cloudinary.uploader.upload_resource(data['archivo'])
             )
 
             consulta.save()
@@ -435,7 +437,7 @@ def checkups(request):
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
-                Archivo = data['archivo']
+                Archivo = cloudinary.uploader.upload_resource(data['archivo'])
             )
 
             consulta.save()
@@ -466,7 +468,8 @@ def checkups_patient(request, patient_id):
             doctor = doctor,
             Titulo = data['titulo'],
             Descripcion = data['descripcion'],
-            Fecha = data['fecha']
+            Fecha = data['fecha'],
+            Archivo = cloudinary.uploader.upload_resource(data['archivo'])
         )
 
         consulta.save()
