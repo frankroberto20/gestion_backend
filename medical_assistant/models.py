@@ -33,10 +33,15 @@ class Usuario(AbstractUser):
         return f"{self.id}: {self.first_name}"
 
     def serialize(self):
+        id = self.id
+        if self.tipoUsuario.id == 3:
+            id = self.paciente.id
+        elif self.tipoUsuario.id == 4:
+            id = self.doctor.id
+        
         return {
-            'id': self.id,
+            'id': id,
             'usuario': self.username,
-            #'id_usuario_relacionado': self.relacion.id,
             'tipo_usuario': self.tipoUsuario.id,
             'nombre': self.first_name,
             'apellidos': self.last_name,
