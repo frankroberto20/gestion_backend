@@ -498,10 +498,10 @@ def search_patients(request):
     if request.method == 'POST':
         search_str = json.loads(request.body).get('searchText')
 
-        patients = Usuario.objects.filter(
+        patients = (Usuario.objects.filter(
             username__startswith=search_str) | Usuario.objects.filter(
             Cedula__startswith=search_str) | Usuario.objects.filter(
-            first_name__startswith=search_str) & Usuario.objects.filter(
+            first_name__startswith=search_str)) & Usuario.objects.filter(
             tipoUsuario=3)
         
         return JsonResponse([patient.serialize() for patient in patients], safe=False)
