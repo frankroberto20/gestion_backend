@@ -27,11 +27,13 @@ SECRET_KEY = '(lxq8j)lo4p)&0il%=9xuae2w8l+x_#x9=-f=0)11%wp(m7(x^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'cloudinary',
     'medical_assistant',
     'django.contrib.admin',
@@ -47,6 +49,7 @@ cloudinary.config(cloud_name='fams-library',
                   api_secret='7V8BPYIZQ07R_A7Ay-iAh4nljLQ')
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
