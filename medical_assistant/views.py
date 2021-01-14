@@ -441,7 +441,7 @@ def checkups(request):
             )
 
             consulta.save()
-            return JsonResponse({f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
+            return JsonResponse({'message': f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
         else:
             return JsonResponse({'message': 'Permission denied.'}, status=401)
 
