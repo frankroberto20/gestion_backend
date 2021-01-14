@@ -483,7 +483,7 @@ def checkups_patient(request, patient_id):
 @login_required
 def checkups_doctor(request, doctor_id):
     user = request.user
-    if request.method == 'GET' and (user.tipoUsuario.id == 1 or usre.tipoUsuario.id == 4):
+    if request.method == 'GET' and (user.tipoUsuario.id == 1 or user.tipoUsuario.id == 4):
         try:
             doctor = Doctor.objects.get(id=doctor_id)
                 #if paciente.consultas.count() == 0:
