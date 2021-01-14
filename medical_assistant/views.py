@@ -47,7 +47,6 @@ def logout_view(request):
     return JsonResponse({"message": "Logout successful."}, status=200)
 
 @csrf_exempt
-@login_required
 def patients(request):
     user = request.user
     if request.method == 'GET' and user.tipoUsuario.id == 1:
@@ -104,7 +103,6 @@ def patients(request):
 
 
 @csrf_exempt
-@login_required
 def patient_by_id(request, id):
     if request.method == 'GET':
         try:
@@ -159,7 +157,6 @@ def patient_by_id(request, id):
             return JsonResponse({'error': 'Patient not found'}, status=400)
          
 @csrf_exempt
-@login_required
 def diseases(request):
     if request.method == 'GET':
         return JsonResponse([enfermedad.serialize() for enfermedad in Enfermedad.objects.all()], safe=False)
@@ -179,7 +176,6 @@ def diseases(request):
 
 
 @csrf_exempt
-@login_required
 def doctors(request):
     user = request.user
     if request.method == 'GET' and user.tipoUsuario.id == 1:
@@ -217,7 +213,6 @@ def doctors(request):
     
 
 @csrf_exempt
-@login_required
 def doctor_by_id(request, id):
     user = request.user
     if request.method == 'GET':
@@ -268,7 +263,6 @@ def doctor_by_id(request, id):
 
 
 @csrf_exempt
-@login_required
 def specialties(request):
     if request.method == 'GET':
         return JsonResponse([especialidad.serialize() for especialidad in Especialidad.objects.all()], safe=False)
@@ -311,7 +305,6 @@ def specialties(request):
             return JsonResponse({'error': 'Specialty not found'}, status=400)    
 
 @csrf_exempt
-@login_required
 def subspecialties(request):
     if request.method == 'GET':
         return JsonResponse([subespecialidad.serialize() for subespecialidad in SubEspecialidad.objects.all()], safe=False)
@@ -356,7 +349,6 @@ def subspecialties(request):
             return JsonResponse({'error': 'Subspecialty not found'}, status=400)  
 
 @csrf_exempt
-#@login_required
 def usertypes(request):
     if request.method == 'GET':
         return JsonResponse([tipousuario.serialize() for tipousuario in TipoUsuario.objects.all()], safe=False)
@@ -399,7 +391,6 @@ def usertypes(request):
             return JsonResponse({'error': 'UserType not found'}, status=400) 
 
 @csrf_exempt
-@login_required
 def checkups(request):
     user = request.user
     if request.method == 'GET':
@@ -448,7 +439,6 @@ def checkups(request):
             return JsonResponse({'message': 'Permission denied.'}, status=401)
 
 @csrf_exempt
-@login_required
 def checkups_patient(request, patient_id):
     user = request.user
     if request.method == 'GET':
@@ -480,7 +470,6 @@ def checkups_patient(request, patient_id):
         return JsonResponse({'message': 'Permission denied.'}, status=401)
 
 @csrf_exempt
-@login_required
 def checkups_doctor(request, doctor_id):
     user = request.user
     if request.method == 'GET' and (user.tipoUsuario.id == 1 or user.tipoUsuario.id == 4):
