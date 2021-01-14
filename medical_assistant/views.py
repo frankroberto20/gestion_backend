@@ -421,6 +421,7 @@ def checkups(request):
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
+                Fecha = data['fecha'],
                 Archivo = cloudinary.uploader.upload_resource(data['archivo'])
             )
 
@@ -437,6 +438,7 @@ def checkups(request):
                 doctor = doctor,
                 Titulo = data['titulo'],
                 Descripcion = data['descripcion'],
+                Fecha = data['fecha'],
                 Archivo = cloudinary.uploader.upload_resource(data['archivo'])
             )
 
@@ -449,7 +451,7 @@ def checkups(request):
 @login_required
 def checkups_patient(request, patient_id):
     user = request.user
-    if request.method == 'GET' and user.tipoUsuario.id == 1:
+    if request.method == 'GET':
         try:
             paciente = Paciente.objects.get(id=patient_id)
             #if paciente.consultas.count() == 0:
@@ -457,7 +459,7 @@ def checkups_patient(request, patient_id):
             return JsonResponse([consulta.serialize() for consulta in Consulta.objects.filter(paciente = paciente)], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=404)
-    elif request.method == 'POST' and user.tipoUsuario.id == 4:
+    elif request.method == 'POST' and (user.tipoUsuario.id == 4 or user.tipoUsuario.id == 2):
         data = json.loads(request.body)
     
         paciente = Paciente.objects.get(id=patient_id)
@@ -481,7 +483,7 @@ def checkups_patient(request, patient_id):
 @login_required
 def checkups_doctor(request, doctor_id):
     user = request.user
-    if request.method == 'GET' and user.tipoUsuario.id == 1:
+    if request.method == 'GET' and (user.tipoUsuario.id == 1 or usre.tipoUsuario.id == 4):
         try:
             doctor = Doctor.objects.get(id=doctor_id)
                 #if paciente.consultas.count() == 0:
