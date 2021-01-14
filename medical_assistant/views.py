@@ -49,10 +49,10 @@ def logout_view(request):
 @csrf_exempt
 def patients(request):
     user = request.user
-    if request.method == 'GET' and user.tipoUsuario.id == 1:
+    if request.method == 'GET':
         return JsonResponse([paciente.serialize() for paciente in Paciente.objects.all()], safe=False)
 
-    elif request.method == 'POST' and user.tipoUsuario.id == 1:
+    elif request.method == 'POST':
         data = json.loads(request.body)
 
         try:
@@ -178,10 +178,10 @@ def diseases(request):
 @csrf_exempt
 def doctors(request):
     user = request.user
-    if request.method == 'GET' and user.tipoUsuario.id == 1:
+    if request.method == 'GET':
         return JsonResponse([doctor.serialize() for doctor in Doctor.objects.all()], safe=False)
     
-    elif request.method == 'POST' and user.tipoUsuario.id == 1:
+    elif request.method == 'POST':
         data = json.loads(request.body)
 
         try:
@@ -394,13 +394,17 @@ def usertypes(request):
 def checkups(request):
     user = request.user
     if request.method == 'GET':
+        '''
         if user.tipoUsuario.id == 3:
             return JsonResponse([consulta.serialize() for consulta in user.paciente.consultas.all()], safe=False, status=200)
+
         elif user.tipoUsuario.id == 4:
             return JsonResponse([consulta.serialize() for consulta in user.doctor.consultas.all()], safe=False, status=200)
         else:
-            return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()], safe=False, status=200)
+        '''
+        return JsonResponse([consulta.serialize() for consulta in Consulta.objects.all()], safe=False, status=200)
     if request.method == 'POST':
+        '''
         if user.tipoUsuario.id == 4:
             data = json.loads(request.body)
         
@@ -418,25 +422,26 @@ def checkups(request):
 
             consulta.save()
             return JsonResponse({'message': f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
-        elif user.tipoUsuario.id == 2 or user.tipoUsuario.id == 1:
-            data = json.loads(request.body)
-        
-            paciente = Paciente.objects.get(id=data['paciente'])
-            doctor = Doctor.objects.get(id=data['doctor'])
+        '''
+        #elif user.tipoUsuario.id == 2 or user.tipoUsuario.id == 1:
+        data = json.loads(request.body)
+    
+        paciente = Paciente.objects.get(id=data['paciente'])
+        doctor = Doctor.objects.get(id=data['doctor'])
 
-            consulta = Consulta(
-                paciente = paciente,
-                doctor = doctor,
-                Titulo = data['titulo'],
-                Descripcion = data['descripcion'],
-                Fecha = data['fecha'],
-                Archivo = cloudinary.uploader.upload_resource(data['archivo'])
-            )
+        consulta = Consulta(
+            paciente = paciente,
+            doctor = doctor,
+            Titulo = data['titulo'],
+            Descripcion = data['descripcion'],
+            Fecha = data['fecha'],
+            Archivo = cloudinary.uploader.upload_resource(data['archivo'])
+        )
 
-            consulta.save()
-            return JsonResponse({'message': f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
-        else:
-            return JsonResponse({'message': 'Permission denied.'}, status=401)
+        consulta.save()
+        return JsonResponse({'message': f'Checkup for {paciente.usuario.first_name} {paciente.usuario.last_name} created succesfully'}, status=200, safe=False)
+        #else:
+        #    return JsonResponse({'message': 'Permission denied.'}, status=401)
 
 @csrf_exempt
 def checkups_patient(request, patient_id):
@@ -449,7 +454,7 @@ def checkups_patient(request, patient_id):
             return JsonResponse([consulta.serialize() for consulta in Consulta.objects.filter(paciente = paciente)], safe=False, status=200)
         except:
             return JsonResponse({'error': 'Patient not found'}, status=404)
-    elif request.method == 'POST' and (user.tipoUsuario.id == 4 or user.tipoUsuario.id == 2):
+    elif request.method == 'POST':
         data = json.loads(request.body)
     
         paciente = Paciente.objects.get(id=patient_id)
@@ -472,7 +477,7 @@ def checkups_patient(request, patient_id):
 @csrf_exempt
 def checkups_doctor(request, doctor_id):
     user = request.user
-    if request.method == 'GET' and (user.tipoUsuario.id == 1 or user.tipoUsuario.id == 4):
+    if request.method == 'GET':
         try:
             doctor = Doctor.objects.get(id=doctor_id)
                 #if paciente.consultas.count() == 0:
